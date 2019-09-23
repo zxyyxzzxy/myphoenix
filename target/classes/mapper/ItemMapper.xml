@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zxy.phoenix.mapper.ItemMapper">
+
+	<resultMap id="BaseResultMap" type="com.zxy.phoenix.entity.Item">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="price" column="price"/>
+        <result property="dprice" column="d_price"/>
+	</resultMap>
+	
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="com.zxy.phoenix.mapper.ItemMapper.columns">
+	<![CDATA[
+		id, name, price, d_price
+	]]>
+	</sql>
+
+    <delete id="delete">
+    <![CDATA[
+        DELETE FROM t_item WHERE
+        id = #{id} 
+    ]]>
+    </delete>
+    
+    <select id="get" resultMap="BaseResultMap">
+		SELECT <include refid="com.zxy.phoenix.mapper.ItemMapper.columns" />
+	    <![CDATA[
+		    FROM t_item 
+	        WHERE 
+		        id = #{id} 
+	    ]]>
+	</select>
+
+	<select id="getList" resultMap="BaseResultMap">
+		SELECT <include refid="com.zxy.phoenix.mapper.ItemMapper.columns" /> FROM t_item
+	</select>
+
+	<select id="getItemList" resultMap="BaseResultMap">
+		SELECT <include refid="com.zxy.phoenix.mapper.ItemMapper.columns" /> FROM t_item
+        <where>
+            ...
+        </where>
+	</select>
+	<!--***************************************************************-->
+
+	<update id="upsertItem" useGeneratedKeys="true" keyProperty="id">
+		UPSERT INTO t_item (
+			id,
+			name,
+			price,
+			d_price
+		) VALUES (
+			#{id},
+			#{name},
+			#{price},
+			#{dprice}
+		)
+	</update>
+</mapper>

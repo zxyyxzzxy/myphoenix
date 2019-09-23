@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zxy.phoenix.mapper.CustomerMapper">
+
+	<resultMap id="BaseResultMap" type="com.zxy.phoenix.entity.Customer">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="country" column="country"/>
+	</resultMap>
+
+	<resultMap id="CustomerItems" type="com.zxy.phoenix.entity.extend.CustomerExtend">
+		<result property="id" column="customerId"/>
+		<result property="name" column="customerName"/>
+
+		<collection property="items" ofType="com.zxy.phoenix.entity.Item">
+			<id property="id" column="itemId"/>
+			<result property="name" column="itemName"/>
+			<result property="price" column="itemPrice"/>
+			<result property="dprice" column="itemDPrice"/>
+		</collection>
+	</resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="com.zxy.phoenix.mapper.CustomerMapper.columns">
+	<![CDATA[
+		id, name, country
+	]]>
+	</sql>
+
+    <delete id="delete">
+    <![CDATA[
+        DELETE FROM t_customer WHERE
+        id = #{id}
+    ]]>
+    </delete>
+
+    <select id="get" resultMap="BaseResultMap">
+		SELECT <include refid="com.zxy.phoenix.mapper.CustomerMapper.columns" />
+	    <![CDATA[
+		    FROM t_customer
+	        WHERE
+		        id = #{id}
+	    ]]>
+	</select>
+
+	<select id="getList" resultMap="BaseResultMap">
+		SELECT <include refid="com.zxy.phoenix.mapper.CustomerMapper.columns" /> FROM t_customer
+	</select>
+
+	<select id="getCustomerList" resultMap="BaseResultMap">
+		SELECT <include refid="com.zxy.phoenix.mapper.CustomerMapper.columns" /> FROM t_customer
+        <where>
+            ...
+        </where>
+	</select>
+	<!--***************************************************************-->
+
+	<insert id="upsertCustomer">
+		UPSERT INTO t_customer (
+			id,
+			name,
+			country
+		) VALUES (
+			#{id},
+			#{name},
+			#{country}
+		)
+	</insert>
+
+	<select id="getItems" resultMap="CustomerItems">
+		SELECT c.id customerId, c.name customerName ,i.id itemId, i.name itemName, i.price itemPrice, i.d_price itemDPrice
+		FROM t_order o
+		JOIN t_item i ON o.item_id = i.id
+		JOIN t_customer c ON o.customer_id = c.id
+		WHERE o.customer_id= #{customerId}
+	</select>
+</mapper>
